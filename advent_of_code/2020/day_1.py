@@ -8,7 +8,7 @@ def two_sum(inp: Set[int], total_sum: int) -> Optional[int]:
     """
     for val in inp:
         other_val = total_sum - val
-        if other_val in inp:
+        if val != other_val and other_val in inp:
             return val * other_val
     return None
 
@@ -26,6 +26,8 @@ def three_sum(inp: set[int], total_sum: int) -> Optional[int]:
         depending on the first observed value
     """
     for val in inp:
+        new_inp = inp.copy()
+        new_inp.remove(val)
         res = two_sum(inp, total_sum - val)
         if res:
             return val * res
