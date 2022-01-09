@@ -37,8 +37,8 @@ def three_sum(inp: set[int], total_sum: int) -> Optional[int]:
 if __name__ == "__main__":
     input_file = "input/day_1.txt"
     with open(input_file, "r") as f:
-        inp = f.readlines()
-    inp_parsed = {int(each) for each in inp}
+        inp_parsed = {int(val) for val in f}
+
     total_sum = 2020
 
     two_sum_res = two_sum(inp_parsed, total_sum)
