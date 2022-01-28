@@ -3,7 +3,6 @@ from pydantic import BaseModel
 
 class Instruction(BaseModel):
     command: str
-    sign: str
     value: int
 
 
@@ -63,18 +62,12 @@ def handle_instruction(instr: Instruction) -> tuple[int, int]:
     acc = 0
     next_pos_offset = 0
     if instr.command == "acc":
-        if instr.sign == "+":
-            acc += instr.value
-        elif instr.sign == "-":
-            acc -= instr.value
+        acc += instr.value
         next_pos_offset += 1
     elif instr.command == "nop":
         next_pos_offset += 1
     elif instr.command == "jmp":
-        if instr.sign == "+":
-            next_pos_offset += instr.value
-        elif instr.sign == "-":
-            next_pos_offset -= instr.value
+        next_pos_offset += instr.value
     else:
         print("Undefined operation. Skipping...")
     return next_pos_offset, acc
@@ -85,9 +78,8 @@ def get_instruction(input_file: str) -> list[Instruction]:
     with open(input_file, "r") as f:
         for row in f:
             cmd, val = row.strip().split()
-            sign = val[0]
-            num = int(val[1:])
-            instruction_set.append(Instruction(command=cmd, sign=sign, value=num))
+            num = int(val)
+            instruction_set.append(Instruction(command=cmd, value=num))
     return instruction_set
 
 
