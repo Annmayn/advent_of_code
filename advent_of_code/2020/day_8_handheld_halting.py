@@ -50,7 +50,7 @@ def part_two(
         next_pos_offset, acc_val = handle_instruction(instr)
         new_pos = current_pos + next_pos_offset
         child_acc, is_valid = part_two(
-            new_pos, instruction_set, is_instr_executed, can_flip
+            new_pos, instruction_set, is_instr_executed.copy(), can_flip
         )
         if is_valid:
             acc_val += child_acc
