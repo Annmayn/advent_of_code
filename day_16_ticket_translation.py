@@ -1,7 +1,9 @@
 import re
 
+FieldRange = list[set[int]]
+Ticket = list[int]
 
-def read_input(input_file: str) -> tuple[set, list, list]:
+def read_input(input_file: str) -> tuple[FieldRange, Ticket, list[Ticket]]:
     with open(input_file, "r") as f:
         valid_field_range = read_field_range(f)
         ticket = read_ticket(f)
@@ -9,8 +11,8 @@ def read_input(input_file: str) -> tuple[set, list, list]:
     return (valid_field_range, ticket, nearby_tickets)
 
 
-def read_field_range(f) -> set:
-    valid_fields = set()
+def read_field_range(f) -> FieldRange:
+    valid_fields = []
     for row in f:
         if row.strip() == "":
             break
@@ -23,19 +25,19 @@ def read_field_range(f) -> set:
             e1 = int(res_dict["e1"])
             s2 = int(res_dict["s2"])
             e2 = int(res_dict["e2"])
-            valid_range = {*list(range(s1, e1 + 1)), *list(range(s2, e2 + 1))}
-        valid_fields = valid_fields.union(valid_range)
+            valid_range = set(range(s1, e1 + 1)).union(set(range(s2, e2 + 1)))
+        valid_fields.append(valid_range)
     return valid_fields
 
 
-def read_ticket(f):
+def read_ticket(f) -> Ticket:
     next(f)
     ticket = list(map(int, next(f).strip().split(",")))
     next(f)
     return ticket
 
 
-def read_nearby_tickets(f):
+def read_nearby_tickets(f) -> list[Ticket]:
     next(f)
     nearby_tickets = []
     for row in f:
@@ -47,8 +49,14 @@ def part_one(valid_fields, nearby_tickets):
     sum = 0
     for ticket in nearby_tickets:
         for num in ticket:
-            if num not in valid_fields:
+            is_invalid = True
+            for column in valid_fields:
+                if num in column:
+                    is_invalid = False
+                    break
+            if is_invalid:
                 sum += num
+
     return sum
 
 
