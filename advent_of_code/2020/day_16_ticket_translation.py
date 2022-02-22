@@ -67,14 +67,14 @@ def part_one(valid_fields, nearby_tickets):
 def part_two(
     valid_fields: FieldRange, ticket: Ticket, nearby_tickets: list[Ticket]
 ) -> int:
-    class_map = get_valid_tickets_with_class(valid_fields, nearby_tickets)
+    class_map = get_ticket_row_to_class_map(valid_fields, nearby_tickets)
     departure_mult = 1
     for i in range(0, 6):
         departure_mult *= ticket[class_map[i]]
     return departure_mult
 
 
-def get_valid_tickets_with_class(
+def get_ticket_row_to_class_map(
     valid_fields: FieldRange, nearby_tickets: list[Ticket]
 ) -> dict[int, int]:
     memo: Memo = {}
