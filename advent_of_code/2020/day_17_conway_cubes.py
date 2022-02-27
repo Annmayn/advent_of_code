@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Coroutine, Iterator, Union
 
 
@@ -100,12 +101,98 @@ def get_neighbors_part_two(node: Coordinates4D) -> Iterator[Coordinates4D]:
                 for w in range(-1, 2):
                     yield (node[0] + i, node[1] + j, node[2] + k, node[3] + w)
 
-def get_active_neighbors_part_two(node: Coordinates4D, active_states: set[Coordinates4D]) -> int:
+
+def get_active_neighbors_part_two(
+    node: Coordinates4D, active_states: set[Coordinates4D]
+) -> int:
     active_neighbors = 0
     for node_neigh in get_neighbors_part_two(node):
         if node_neigh != node and node_neigh in active_states:
             active_neighbors += 1
     return active_neighbors
+
+
+### ALTERNATIVE APPROACH FOR OPTIMIZED SOLUTION ###
+"""
+Initially for each active co-ordinates, add that co-ordinate (as active) and
+all it's neighbors (as inactive) to the `active_states` hashmap and update all
+it's neighbors by 1 as well.
+Then, in each iteration, for every co-ordinate in the hashmap, check if state
+changes (from active to inactive and vice-versa) and add or subtract the
+neighboring nodes values.
+Finally, return the total number of nodes with active state.
+"""
+
+
+def part_two_alt(data: NDimData, num_runs: int = 6) -> int:
+    active_states = get_initial_state_part_two_alt(data)
+    for _ in range(num_runs):
+        active_states = run_cycle_part_two_alt(active_states)
+    return sum([i for i, _ in active_states.values()])
+
+
+def get_initial_state_part_two_alt(
+    data: NDimData,
+) -> dict[Coordinates4D, tuple[bool, int]]:
+    active_states: dict[Coordinates4D, tuple[bool, int]] = defaultdict(
+        lambda: (False, 0)
+    )
+    for x in range(1):
+        for i, grid in enumerate(data):
+            for j, row in enumerate(grid):
+                for k, col in enumerate(row):
+                    if col == "#":
+                        node = (x, i, j, k)
+                        (_, active_neigh) = active_states[node]
+                        active_states[node] = (True, active_neigh)
+                        update_neighbor_active_count_alt(active_states, node, 1)
+    return active_states
+
+
+def update_neighbor_active_count_alt(
+    active_states: dict, node: Coordinates4D, val: int
+):
+    for node_neigh in get_neighbors_part_two(node):
+        if node_neigh != node:
+            (status, active_count) = active_states[node_neigh]
+            active_states[node_neigh] = (status, active_count + val)
+
+
+def run_cycle_part_two_alt(
+    active_states: dict[Coordinates4D, tuple[bool, int]]
+) -> dict[Coordinates4D, tuple[bool, int]]:
+    new_active_states: dict[Coordinates4D, tuple[bool, int]] = defaultdict(
+        lambda: (False, 0)
+    )
+    for node, (active_status, active_neighbors) in active_states.items():
+        _, curr_active_neighbors = new_active_states[node]
+        new_active_neighbors = active_neighbors + curr_active_neighbors
+
+        if active_status:  # active
+            if active_neighbors not in (2, 3):
+                new_active_states[node] = (
+                    False,
+                    new_active_neighbors,
+                )
+                update_neighbor_active_count_alt(new_active_states, node, -1)
+            else:
+                new_active_states[node] = (
+                    True,
+                    new_active_neighbors,
+                )
+        else:  # inactive
+            if active_neighbors == 3:
+                new_active_states[node] = (
+                    True,
+                    new_active_neighbors,
+                )
+                update_neighbor_active_count_alt(new_active_states, node, 1)
+            else:
+                new_active_states[node] = (
+                    False,
+                    new_active_neighbors,
+                )
+    return new_active_states
 
 
 if __name__ == "__main__":
@@ -114,6 +201,9 @@ if __name__ == "__main__":
 
     part_one_res = part_one(data)
     print(f"{part_one_res=}")
+
+    part_two_alt_res = part_two_alt(data)
+    print(f"{part_two_alt_res=}")
 
     part_two_res = part_two(data)
     print(f"{part_two_res=}")
