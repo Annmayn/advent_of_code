@@ -1,37 +1,12 @@
 import java.io.File
 
-typealias IntList = MutableList<Int>
+typealias IntList = List<Int>
 
 fun readInput(input_file: String): IntList {
-    var dataset: IntList = mutableListOf()
-    File(input_file).forEachLine() { dataset.add(it.toInt()) }
-    return dataset
+    return File(input_file).readLines().map { it.toInt() }
 }
 
-fun partOne(data: IntList, target: Int): Int {
-    var refSet: MutableSet<Int> = mutableSetOf()
-    for (each in data) {
-        val diff = target - each
-        if (refSet.contains(diff)) {
-            return each * diff
-        }
-        refSet.add(each)
-    }
-    return -1
-}
-
-fun partTwo(data: IntList, target: Int): Int {
-    for (i in 0 until data.size) {
-        val newTarget = target - data[i]
-        val tmp = solve(data, newTarget, i + 1)
-        if (tmp != -1) {
-            return data[i] * tmp
-        }
-    }
-    return -1
-}
-
-fun solve(data: IntList, target: Int, ind: Int): Int {
+fun partOne(data: IntList, target: Int, ind: Int = 0): Int {
     var refSet: MutableSet<Int> = mutableSetOf()
     for (i in ind until data.size) {
         val diff = target - data[i]
@@ -43,18 +18,22 @@ fun solve(data: IntList, target: Int, ind: Int): Int {
     return -1
 }
 
-fun multList(arr: MutableList<Int>): Int {
-    var res = 1
-    for (i in arr) {
-        res *= i
+fun partTwo(data: IntList, target: Int): Int {
+    for (i in 0 until data.size) {
+        val newTarget = target - data[i]
+        val tmp = partOne(data, newTarget, i + 1)
+        if (tmp != -1) {
+            return data[i] * tmp
+        }
     }
-    return res
+    return -1
 }
 
 fun main() {
     val input_file = "input/day_1.txt"
     val data = readInput(input_file)
     val target = 2020
+
     val partOneRes = partOne(data, target)
     println("part one res => $partOneRes")
 
