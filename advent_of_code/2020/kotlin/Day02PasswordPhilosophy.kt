@@ -10,13 +10,12 @@ fun partOne(input: List<String>): Int {
     val regex = Regex("""(\d+)-(\d+)\s+(\w)\:\s+(\w+)""")
     var count = 0
     for (each in input) {
-        val res = regex.find(each)?.groupValues
-        if (res == null) continue
-        val (_, minNumStr, maxNumStr, refChar, refWord) = res
-        val minNum = minNumStr.toInt()
-        val maxNum = maxNumStr.toInt()
-        val countChar = refWord.groupBy { it }.get(refChar.single())?.size ?: 0
-        if (countChar >= minNum && countChar <= maxNum) count++
+        regex.find(each)?.destructured?.let { (minNumStr, maxNumStr, refChar, refWord) ->
+            val minNum = minNumStr.toInt()
+            val maxNum = maxNumStr.toInt()
+            val countChar = refWord.count { it == refChar.single() }
+            if (countChar >= minNum && countChar <= maxNum) count++
+        }
     }
     return count
 }
@@ -25,15 +24,15 @@ fun partTwo(input: List<String>): Int {
     val regex = Regex("""(\d+)-(\d+)\s+(\w)\:\s+(\w+)""")
     var count = 0
     for (each in input) {
-        val res = regex.find(each)?.groupValues
-        if (res == null) continue
-        val (_, startStr, endStr, refChar, refWord) = res
-        val start = startStr.toInt() - 1 // 0 indexing
-        val end = endStr.toInt() - 1
-        val startExists = refWord[start] == refChar.single()
-        val endExists = refWord[end] == refChar.single()
+        regex.find(each)?.destructured?.let { (startStr, endStr, refChar, refWord) ->
+            val start = startStr.toInt() - 1 // 0 indexing
+            val end = endStr.toInt() - 1
 
-        if (startExists xor endExists) count++
+            val startExists = refWord[start] == refChar.single()
+            val endExists = refWord[end] == refChar.single()
+
+            if (startExists xor endExists) count++
+        }
     }
     return count
 }
